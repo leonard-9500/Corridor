@@ -90,6 +90,8 @@ class Player
 	{
 		this.x = 8;
 		this.y = 8;
+		this.viewHeight = 32;
+		this.distToProjPlane = 10;
 		this.velX = 0;
 		this.velY = 0;
 		this.collisionAccuracy = 0.1;
@@ -232,10 +234,28 @@ class Player
 							let lFV = 1 / (rayDist * rayDist);
 							ctx.strokeStyle = `rgb(${Math.floor(MAP_BASELIGHT * lFV)}, ${Math.floor(MAP_BASELIGHT * lFV)}, ${Math.floor(MAP_BASELIGHT * lFV)})`;
 
+							// Draw wall line
 							ctx.beginPath();
 							ctx.moveTo(i, SCREEN_HEIGHT/2 - lineHeight/2);
 							ctx.lineTo(i, SCREEN_HEIGHT/2 + lineHeight/2);
 							ctx.stroke();
+
+							// Experimental
+							// Draw texture for wall line/slice
+
+							// How many pixels is one texture pixel high.
+							/*
+							let texelSizeY = lineHeight / 64;
+							let ctxStartY = SCREEN_HEIGHT/2 - lineHeight/2;
+							ctx.beginPath();
+							ctx.moveTo(i, ctxStartY);
+							for (let n = 0; n <= 64; n++)
+							{
+								ctx.strokeStyle = `rgb(${Math.floor(MAP_BASELIGHT * lFV - n)}, ${Math.floor(MAP_BASELIGHT * lFV)}, ${Math.floor(MAP_BASELIGHT * lFV)})`;
+								ctx.lineTo(i, ctxStartY + texelSizeY*(n+1));
+							}
+							ctx.stroke();
+							*/
 
 							//console.log("Wall line drawn.\n");
 						}
@@ -282,6 +302,8 @@ map += "################";
 let MAP_WIDTH = 16;
 let MAP_HEIGHT = 16;
 let MAP_BASELIGHT = 64;
+// The width, length and height of each of the map cubes.
+let MAP_WALLSIZE = 64;
 
 
 let player = new Player;
