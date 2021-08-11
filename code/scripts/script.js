@@ -30,6 +30,7 @@ let radians = Math.PI / 180;
 /* Key Presses */
 document.addEventListener("keydown", keyDownHandler, false);
 document.addEventListener("keyup", keyUpHandler, false);
+document.addEventListener("mousemove", mouseMoveHandler, false);
 
 let wPressed = false,
     aPressed = false,
@@ -46,6 +47,11 @@ let wPressedBefore = false,
     jPressedBefore = false,
     kPressedBefore = false,
     lPressedBefore = false;
+
+let mouseX = 0.0,
+	mouseY = 0.0,
+	mouseLastX = 0.0,
+	mouseLastY = 0.0;
 
 function keyDownHandler(e)
 {
@@ -71,6 +77,12 @@ function keyUpHandler(e)
     if (e.code == "KeyL") { lPressed = false; }
 }
 
+function mouseMoveHandler(e)
+{
+	mouseX = e.clientX;
+	mouseY = e.clientY;
+}
+
 /* Class Definitions */
 class Player
 {
@@ -78,23 +90,62 @@ class Player
 	{
 		this.x = 4;
 		this.y = 4;
+		this.velX = 0;
+		this.velY = 0;
+		this.maxVel = 2;
 		this.rotZ = 0;
 		this.fov = 90;
 	}
 
 	update()
 	{
+		this.velX = 0;
+		this.velY = 0;
 		this.handleInput();
+		this.x += this.velX * elapsedTime / 1000;
+		this.y += this.velY * elapsedTime / 1000;
 		this.collisionDetection();
 		this.draw();
 	}
 
 	handleInput()
 	{
+		// Forward
+		if (wPressed)
+		{
+			this.velX += Math.sin(this.rotZ * radians);
+			this.velY -= Math.cos(this.rotZ * radians);
+		}
+		// Left
+		if (aPressed)
+		{
+			this.velX += Math.sin((this.rotZ-90) * radians);
+			this.velY -= Math.cos((this.rotZ-90) * radians);
+		}
+		// Backwards
+		if (sPressed)
+		{
+			this.velX += Math.sin((this.rotZ-180) * radians);
+			this.velY -= Math.cos((this.rotZ-180) * radians);
+		}
+		// Right
+		if (dPressed)
+		{
+			this.velX += Math.sin((this.rotZ+90) * radians);
+			this.velY -= Math.cos((this.rotZ+90) * radians);
+		}
+
+		this.rotZ += mouseX-mouseLastX;
+		mouseLastX = mouseX;
 	}
 
 	collisionDetection()
 	{
+		// Out of bounds collision detection
+		if (this.x < 0) { this.x = 0; };
+		if (this.x > MAP_WIDTH) { this.x = MAP_WIDTH; };
+		if (this.y < 0) { this.y = 0; };
+		if (this.y > MAP_HEIGHT) { this.y = MAP_HEIGHT; };
 	}
 
 	draw()
@@ -107,7 +158,10 @@ class Player
 			rayStartY = 0.0,
 			rayEndX = 0.0,
 			rayEndY = 0.0;
-		let rayMaxDist = 8;//Math.sqrt((MAP_WIDTH*MAP_WIDTH)+(MAP_HEIGHT*MAP_HEIGHT));
+		let rayMaxDist = 10;//Math.sqrt((MAP_WIDTH*MAP_WIDTH)+(MAP_HEIGHT*MAP_HEIGHT));
+		let rayMaxSearches = 50;
+		// How exact the ray is.
+		let rayLengthMultiplier = rayMaxDist / rayMaxSearches;
 
 		// The start angle of the first (left-most) ray.
 		let firstRayAngle = this.rotZ-this.fov/2;
@@ -127,7 +181,8 @@ class Player
 
 			rayHitWall = false;
 
-			while (!rayHitWall)
+			// How many times can the algorithm increase the ray's distance as long as the ray hasn't hit anything
+			for (let n = 0; n < rayMaxSearches, !rayHitWall; n++)
 			{
 				// Out of bounds collision detection
 
@@ -160,7 +215,8 @@ class Player
 						{
 							rayHitWall = true;
 							let lineHeight = SCREEN_HEIGHT / rayDist;
-							ctx.fillStyle = "#888888";
+							let lFV = 1 / (rayDist * rayDist);
+							ctx.strokeStyle = `rgb(${Math.floor(255 * lFV)}, ${Math.floor(255 * lFV)}, ${Math.floor(255 * lFV)})`;
 
 							ctx.beginPath();
 							ctx.moveTo(i, SCREEN_HEIGHT/2 - lineHeight/2);
@@ -172,8 +228,8 @@ class Player
 						// Ray has hit nothing, so extend it.
 						else
 						{
-							rayEndX += Math.sin(rayRotZ * Math.PI / 180) / 5;
-							rayEndY -= Math.cos(rayRotZ * Math.PI / 180) / 5;
+							rayEndX += Math.sin(rayRotZ * Math.PI / 180) * rayLengthMultiplier;
+							rayEndY -= Math.cos(rayRotZ * Math.PI / 180) * rayLengthMultiplier;
 							//console.log("Ray extended.\n");
 						}
 					}
