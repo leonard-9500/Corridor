@@ -9,8 +9,8 @@
 
 /**** INITIALIZATION ****/
 
-const SCREEN_WIDTH = 360;
-const SCREEN_HEIGHT = 240;
+const SCREEN_WIDTH = 800;
+const SCREEN_HEIGHT = 600;
 const debugMode = true;
 
 let canvas = document.getElementById("canvas");
@@ -88,10 +88,12 @@ class Player
 {
 	constructor()
 	{
-		this.x = 4;
-		this.y = 4;
+		this.x = 8;
+		this.y = 8;
 		this.velX = 0;
 		this.velY = 0;
+		this.collisionAccuracy = 0.1;
+		this.mouseSensitivity = 0.5;
 		this.maxVel = 2;
 		this.rotZ = 0;
 		this.fov = 90;
@@ -135,7 +137,7 @@ class Player
 			this.velY -= Math.cos((this.rotZ+90) * radians);
 		}
 
-		this.rotZ += mouseX-mouseLastX;
+		this.rotZ += (mouseX-mouseLastX) * this.mouseSensitivity;
 		mouseLastX = mouseX;
 	}
 
@@ -146,6 +148,12 @@ class Player
 		if (this.x > MAP_WIDTH) { this.x = MAP_WIDTH; };
 		if (this.y < 0) { this.y = 0; };
 		if (this.y > MAP_HEIGHT) { this.y = MAP_HEIGHT; };
+
+		if (map[Math.round(this.x) + Math.round(this.y) * MAP_WIDTH] != " ")
+		{
+			this.x -= this.velX * elapsedTime/1000;
+			this.y -= this.velY * elapsedTime/1000;
+		}
 	}
 
 	draw()
@@ -158,8 +166,8 @@ class Player
 			rayStartY = 0.0,
 			rayEndX = 0.0,
 			rayEndY = 0.0;
-		let rayMaxDist = 10;//Math.sqrt((MAP_WIDTH*MAP_WIDTH)+(MAP_HEIGHT*MAP_HEIGHT));
-		let rayMaxSearches = 50;
+		let rayMaxDist = Math.sqrt((MAP_WIDTH*MAP_WIDTH)+(MAP_HEIGHT*MAP_HEIGHT));
+		let rayMaxSearches = 500;
 		// How exact the ray is.
 		let rayLengthMultiplier = rayMaxDist / rayMaxSearches;
 
@@ -193,7 +201,7 @@ class Player
 				}
 				else
 				{
-					console.log("Ray not out of bounds.\n");
+					//console.log("Ray not out of bounds.\n");
 					let rayWidth = rayEndX-rayStartX;
 					let rayHeight = rayEndY-rayStartY;
 
@@ -214,9 +222,15 @@ class Player
 						if (map[Math.round(rayEndX) + Math.round(rayEndY) * MAP_WIDTH] == "#")
 						{
 							rayHitWall = true;
+
+							// This fixes the fisheye effect
+							let rayToCamAngle = rayRotZ-this.rotZ;
+							rayDist *= Math.cos(rayToCamAngle * radians);
+
 							let lineHeight = SCREEN_HEIGHT / rayDist;
+							// The light falloff value (multiplier)
 							let lFV = 1 / (rayDist * rayDist);
-							ctx.strokeStyle = `rgb(${Math.floor(255 * lFV)}, ${Math.floor(255 * lFV)}, ${Math.floor(255 * lFV)})`;
+							ctx.strokeStyle = `rgb(${Math.floor(MAP_BASELIGHT * lFV)}, ${Math.floor(MAP_BASELIGHT * lFV)}, ${Math.floor(MAP_BASELIGHT * lFV)})`;
 
 							ctx.beginPath();
 							ctx.moveTo(i, SCREEN_HEIGHT/2 - lineHeight/2);
@@ -249,16 +263,25 @@ function getRandomIntInclusive(min, max)
 }
 
 let map = "";
-map += "########";
-map += "#      #";
-map += "#      #";
-map += "#      #";
-map += "#      #";
-map += "#      #";
-map += "#      #";
-map += "########";
-let MAP_WIDTH = 8;
-let MAP_HEIGHT = 8;
+map += "################";
+map += "#              #";
+map += "#              #";
+map += "#  ###    ###  #";
+map += "#  ###    ###  #";
+map += "#              #";
+map += "#              #";
+map += "#  ###    ###  #";
+map += "#  ###    ###  #";
+map += "#              #";
+map += "#              #";
+map += "#  ###    ###  #";
+map += "#  ###    ###  #";
+map += "#              #";
+map += "#              #";
+map += "################";
+let MAP_WIDTH = 16;
+let MAP_HEIGHT = 16;
+let MAP_BASELIGHT = 64;
 
 
 let player = new Player;
