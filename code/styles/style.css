@@ -1,0 +1,194 @@
+/* Program: style.css
+ * Programmer: Leonard Michel
+ * Start Date: 06.12.2020
+ * Last Change: 06.12.2020
+ * End Date: /
+ * License: /
+ * Version: 0.0.0.0
+*/
+
+:root
+{
+	/*    style variant weight size/height stretch |-------font-family---------|*/
+	/* font: normal normal normal 14px/normal 100% Liberation Sans; */
+	font: 14px Liberation Sans;
+
+	/* Variables */
+	--colTextMain: #000000;
+	--colTextHeadingsAll: #ffa641;
+	--colBackgroundMain: #ffffff;
+	--colBackgroundAccent: #ffa641;
+	--colNavMain: #000000;
+}
+
+body
+{
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    border: 0;
+
+	/*
+	columns: 3 auto;
+	*/
+
+    /**** --TEXTURE::TEXT::STONE::NOTPRESSED ****/
+    background-color: #c2ac87;
+    color: #1f1c19;
+
+    /**** --TEST::TEXTURE::SKY::NOTPRESSED ****/
+    background-color: #ffffff;
+}
+
+h1
+{
+    text-align: center;
+    /* Desert-style heading */
+    color: var(--colTextHeadingsAll);
+    text-shadow:;
+}
+
+main
+{
+    width: 50%;
+    /*
+    width: 960px;
+    */
+
+    /* Top right bottom left */
+    margin: 20px auto 20px auto;
+    padding: 1rem;
+
+    /**** --TEXTURE::BACKGROUND::SANDSTONE::NOTPRESSED-- ****/
+    background-color: #c2ac87;
+    border-width: 8px;
+    border-style: solid;
+    border-color: #d6be95 #99886a #70644e #ccb58e;
+}
+
+button
+{
+	background-color: var(--colBackgroundAccent);
+	margin: 0;
+    padding: 2px 2px;
+	border: 0;
+	text-align: center;
+	border-radius: 2px;
+	box-shadow: inset 2px 2px 2px rgba(255, 255, 255, 0.5),
+				inset -2px -2px 2px rgba(0, 0, 0, 0.5);
+}
+
+button:hover
+{
+}
+
+/**** --NAV-- ****/
+nav
+{
+    position: sticky;
+    top: 0px;
+	background-color: var(--colNavMain);
+}
+
+nav ul
+{
+    /* Remove defaults */
+    list-style-type: none;
+    margin: 0;
+    padding: 10px 0px;
+
+    display: flex;
+    /* Horizontal alignment */
+    align-items: center;
+    /* Vertical alignment */
+    justify-content: space-around;
+
+    /**** --TEXTURE::BACKGROUND::STONE::NOTPRESSED-- ****/
+	/*
+    background-color: #c2c2c2;
+    border-width: 8px;
+    border-style: solid;
+    border-color: #d6d6d6 #999999 #707070 #cccccc;
+	*/
+}
+
+nav ul li
+{
+    padding: 0.5rem 4vw;
+
+    /**** --TEXTURE::BACKGROUND::SANDSTONE::NOTPRESSED-- ****/
+    background-color: #c2ac87;
+    border-width: 8px;
+    border-style: solid;
+    border-color: #d6be95 #99886a #70644e #ccb58e;
+
+    /* Make buttons look like they're being viewed from a low angle. */
+    border-top: 4px solid #d6be95;
+    border-bottom: 16px solid #70644e;
+}
+
+nav ul li:active
+{
+    /**** --TEXTURE::BACKGROUND::SANDSTONE::PRESSED-- ****/
+    background-color: #c2ac87;
+    border-width: 8px;
+    border-style: solid;
+    border-color: #70644e #ccb58e #d6be9e #99886a;
+}
+
+/**** --IMG-- ****/
+img
+{
+    max-width: 100%;
+    height: auto;
+}
+
+/**** --FOOTER-- ****/
+footer
+{
+}
+
+footer p:nth-of-type(1)
+{
+    /*
+    display: inline-block;
+    padding: 2px;
+    /**** --TEXTURE::BACKGROUND::STONE::NOTPRESSED-- ****/
+    /*
+    background-color: #c2c2c2;
+    border-width: 8px;
+    border-style: solid;
+    border-color: #d6d6d6 #999999 #707070 #cccccc;
+    */
+
+    float: left;
+}
+
+footer p:nth-of-type(2)
+{
+    /*
+    padding: 2px;
+    display: inline-block;
+    /**** --TEXTURE::BACKGROUND::STONE::NOTPRESSED-- ****/
+    /*
+    background-color: #c2c2c2;
+    border-width: 8px;
+    border-style: solid;
+    border-color: #d6d6d6 #999999 #707070 #cccccc;
+    */
+
+    float: right;
+}
+
+/**** --A-- ****/
+a:link
+{
+    text-decoration: none;
+}
+
+a:visited
+
+a:hover
+{
+    text-decoration: none;
+}

@@ -1,0 +1,16 @@
+Versioning: [Major build number].[Minor build number].[Revision].[Package]
+ Major build number: This indicates a major milestone in a program so it should be incremented when going from alpha to beta, release and then major updates.
+ - Includes major changes to the actual html/css, as opposed to textual content that is being displayed on the site (new layout/buttons etc.).
+
+ Minor build number: Used for feature updates, large bug fixes, etc..
+ - Includes minor changes to the actual html/css, as opposed to textual content that is being displayd on the site (new layout/buttons etc.).
+
+ Revision: Minor alterations on existing features, small bug fixes, etc..
+ - This heavily includes changes or additions to text that is being displayed on the site.
+
+ Package: The code stays the same, external library changes or asset file updates.
+ - Additions or changes to any image, video or vector file.
+
+ If any of these changes occur, the number in the specific spot shall be increased by one, no matter how much has changed; this is due to the fact that the version number is already divided into big
+ and small change parts.
+ Combined changes roll over to the most significant change. If the minor build number gets increased, the revision and package both reset to 0.
