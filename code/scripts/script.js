@@ -84,6 +84,16 @@ function mouseMoveHandler(e)
 }
 
 /* Class Definitions */
+class Block
+{
+	constructor()
+	{
+		this.color = "#ffffff";
+		this.isVisible = true;
+		this.hasCollision = true;
+	}
+}
+
 class Player
 {
 	constructor()
@@ -151,7 +161,8 @@ class Player
 		if (this.y < 0) { this.y = 0; };
 		if (this.y > MAP_HEIGHT) { this.y = MAP_HEIGHT; };
 
-		if (map[Math.round(this.x) + Math.round(this.y) * MAP_WIDTH] != " ")
+		let mapIndex = map[Math.round(this.x) + Math.round(this.y) * MAP_WIDTH];
+		if (mapBlock[mapIndex].hasCollision)
 		{
 			this.x -= this.velX * elapsedTime/1000;
 			this.y -= this.velY * elapsedTime/1000;
@@ -160,6 +171,7 @@ class Player
 
 	draw()
 	{
+		/* Raycast image */
 		let rayX = this.x;
 		let rayY = this.y;
 		let rayRotZ = this.rotZ-this.fov/2;
@@ -211,7 +223,6 @@ class Player
 					if (rayHeight < 0) { rayHeight *= -1; };
 
 					let rayDist = Math.sqrt((rayWidth*rayWidth)+(rayHeight*rayHeight));
-
 					// Ray has reached clipping distance.
 					if (rayDist > rayMaxDist)
 					{
@@ -220,8 +231,9 @@ class Player
 					}
 					else
 					{
+						let mapIndex = parseInt(map[Math.round(rayEndX) + Math.round(rayEndY) * MAP_WIDTH], 10);
 						// Ray has hit wall block
-						if (map[Math.round(rayEndX) + Math.round(rayEndY) * MAP_WIDTH] == "#")
+						if (mapBlock[mapIndex].isVisible)
 						{
 							rayHitWall = true;
 
@@ -232,6 +244,12 @@ class Player
 							let lineHeight = SCREEN_HEIGHT / rayDist;
 							// The light falloff value (multiplier)
 							let lFV = 1 / (rayDist * rayDist);
+
+							let c = mapBlock[mapIndex].color;
+							//c = hexToRGBColor(c);
+
+							//let cR = parseInt(c[2]);
+							//console.log(c);
 							ctx.strokeStyle = `rgb(${Math.floor(MAP_BASELIGHT * lFV)}, ${Math.floor(MAP_BASELIGHT * lFV)}, ${Math.floor(MAP_BASELIGHT * lFV)})`;
 
 							// Draw wall line
@@ -270,6 +288,28 @@ class Player
 				}
 			}
 		}
+
+		/* Minimap */
+		let minimapScale = 5;
+		let rW = 1 * minimapScale;
+		let rH = 1 * minimapScale;
+
+		for (let y = 0; y < MAP_HEIGHT; y++)
+		{
+			for (let x = 0; x < MAP_WIDTH; x++)
+			{
+				let mapIndex = parseInt(map[Math.floor(x) + Math.floor(y) * MAP_WIDTH], 10);
+				//console.log(mapIndex);
+				if (mapBlock[mapIndex] != " ")
+				{
+					if (mapBlock[mapIndex].isVisible)
+					{
+						ctx.fillStyle = mapBlock[mapIndex].color;
+						ctx.fillRect(x*minimapScale, y*minimapScale, rW, rH);
+					}
+				}
+			}
+		}
 	}
 }
 
@@ -282,28 +322,44 @@ function getRandomIntInclusive(min, max)
     return Math.floor(Math.random() * (max - min + 1) + min);
 }
 
+function hexToRGBColor(color)
+{
+	let hexColorValues = [];
+}
+
 let map = "";
-map += "################";
-map += "#              #";
-map += "#              #";
-map += "#  ###    ###  #";
-map += "#  ###    ###  #";
-map += "#              #";
-map += "#              #";
-map += "#  ###    ###  #";
-map += "#  ###    ###  #";
-map += "#              #";
-map += "#              #";
-map += "#  ###    ###  #";
-map += "#  ###    ###  #";
-map += "#              #";
-map += "#              #";
-map += "################";
+map += "1111111111111111";
+map += "1000000000000001";
+map += "1000000000000001";
+map += "1001110000111001";
+map += "1001110000111001";
+map += "1000000000000001";
+map += "1000000000000001";
+map += "1001110000111001";
+map += "1001110000111001";
+map += "1000000000000001";
+map += "1000000000000001";
+map += "1001110000111001";
+map += "1001110000111001";
+map += "1000000000000001";
+map += "1000000000000001";
+map += "1111111111111111";
 let MAP_WIDTH = 16;
 let MAP_HEIGHT = 16;
 let MAP_BASELIGHT = 64;
 // The width, length and height of each of the map cubes.
 let MAP_WALLSIZE = 64;
+
+let mapBlock = [];
+for (let i = 0; i < 10; i++)
+{
+	mapBlock[i] = new Block;
+}
+mapBlock[0].isVisible = false;
+mapBlock[0].hasCollision = false;
+
+mapBlock[1].color = "#ff8800";
+let mapBlockWidth = 4;
 
 
 let player = new Player;
