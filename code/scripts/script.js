@@ -9,8 +9,8 @@
 
 /**** INITIALIZATION ****/
 
-const SCREEN_WIDTH = 800;
-const SCREEN_HEIGHT = 600;
+const SCREEN_WIDTH = 1280;
+const SCREEN_HEIGHT = 720;
 const debugMode = true;
 
 let canvas = document.getElementById("canvas");
@@ -91,6 +91,7 @@ class Block
 		this.color = "#ffffff";
 		this.isVisible = true;
 		this.hasCollision = true;
+		this.textureURL = "textures/notexture.png";
 	}
 }
 
@@ -101,6 +102,9 @@ class Player
 		this.x = 8;
 		this.y = 8;
 		this.viewHeight = 32;
+		// e.g. if the viewHeight is 32, the viewHeightCenter is exactly in the middle of the screen vertically. Changing the viewHeight
+		// lets the player look "up" and "down".
+		this.viewHeightCenter = SCREEN_HEIGHT * (this.viewHeight/MAP_WALLSIZE);
 		this.distToProjPlane = 10;
 		this.velX = 0;
 		this.velY = 0;
@@ -249,14 +253,14 @@ class Player
 							let color = 0;
 
 							/* Draw ceiling */
-							lFV = 1 / rayDist/2;
+							lFV = 1;//1 / rayDist/2;
 							if (lFV > 1) { lFV = 1 };
 							color = hexToRGBColor(MAP_CEILINGCOLOR);
 							ctx.strokeStyle = ctx.strokeStyle = `rgb(${color[0] * lFV}, ${color[1] * lFV}, ${color[2] * lFV})`;
 
 							ctx.beginPath();
 							ctx.moveTo(i+0.5, 0);
-							ctx.lineTo(i+0.5, SCREEN_HEIGHT/2 - lineHeight/2);
+							ctx.lineTo(i+0.5, this.viewHeightCenter - lineHeight/2);
 							ctx.stroke();
 
 							/* Draw block */
@@ -267,8 +271,53 @@ class Player
 
 							// The 0.5 prevents the line from overlapping two columns of pixels and looking brighter than supposed to.
 							ctx.beginPath();
-							ctx.moveTo(i+0.5, SCREEN_HEIGHT/2 - lineHeight/2);
-							ctx.lineTo(i+0.5, SCREEN_HEIGHT/2 + lineHeight/2);
+							ctx.moveTo(i+0.5, this.viewHeightCenter - lineHeight/2);
+							ctx.lineTo(i+0.5, this.viewHeightCenter + lineHeight/2);
+							ctx.stroke();
+
+							// This draws the same line, but with texture mapping.
+							// If the x coordinate is closer to the underlying grid than the y coordinate, then the ray is intersecting a wall slice that goes along the y-axis.
+							// That is, it's normal is pointing towards positive or negative infinity along the x-axis.
+							// ________
+							// |	   '	
+							// |---->  h		normal pointing along x-axis 
+							// | *	   '		ray end point
+							// -w-
+							let rayEndXError = rayEndX % 1;
+							let rayEndYError = rayEndY % 1;
+							if (rayEndXError < rayEndYError)
+							{
+								// This flips the texture so that it's displayed correctly
+								if (rayEndXError < 0.5)
+								{
+									ctx.drawImage(mapBlockImage[mapIndex], MAP_WALLSIZE * rayEndXError, 0, 1, MAP_WALLSIZE, i, this.viewHeightCenter - lineHeight/2, 1, lineHeight);
+								}
+								else
+								{
+									ctx.drawImage(mapBlockImage[mapIndex], MAP_WALLSIZE - MAP_WALLSIZE * rayEndXError, 0, 1, MAP_WALLSIZE, i, this.viewHeightCenter - lineHeight/2, 1, lineHeight);
+								}
+							}
+							else
+							{
+								if (rayEndYError < 0.5)
+								{
+									ctx.drawImage(mapBlockImage[mapIndex], MAP_WALLSIZE * rayEndYError, 0, 1, MAP_WALLSIZE, i, this.viewHeightCenter - lineHeight/2, 1, lineHeight);
+								}
+								else
+								{
+									ctx.drawImage(mapBlockImage[mapIndex], MAP_WALLSIZE - MAP_WALLSIZE * rayEndYError, 0, 1, MAP_WALLSIZE, i, this.viewHeightCenter - lineHeight/2, 1, lineHeight);
+								}
+							}
+
+							/* Draw floor */
+							lFV = 1;//1 / rayDist/2;
+							if (lFV > 1) { lFV = 1 };
+							color = hexToRGBColor(MAP_FLOORCOLOR);
+							ctx.strokeStyle = `rgb(${color[0] * lFV}, ${color[1] * lFV}, ${color[2] * lFV})`;
+
+							ctx.beginPath();
+							ctx.moveTo(i+0.5, this.viewHeightCenter + lineHeight/2);
+							ctx.lineTo(i+0.5, SCREEN_HEIGHT);
 							ctx.stroke();
 
 							// Experimental
@@ -303,10 +352,11 @@ class Player
 		}
 
 		/* Minimap */
-		let minimapScale = 5;
+		let minimapScale = 10;
 		let rW = 1 * minimapScale;
 		let rH = 1 * minimapScale;
 
+		// Draw map blocks
 		for (let y = 0; y < MAP_HEIGHT; y++)
 		{
 			for (let x = 0; x < MAP_WIDTH; x++)
@@ -319,10 +369,28 @@ class Player
 					{
 						ctx.fillStyle = mapBlock[mapIndex].color;
 						ctx.fillRect(x*minimapScale, y*minimapScale, rW, rH);
+						ctx.drawImage(mapBlockImage[mapIndex], x*minimapScale, y*minimapScale, rW, rH);
 					}
 				}
 			}
 		}
+
+		// Draw player
+		ctx.fillStyle = "#ffffff";
+		ctx.beginPath();
+		ctx.arc(this.x*minimapScale, this.y*minimapScale, 4, 0, Math.PI * 2);
+		ctx.fill();
+
+		// Draw fov
+		ctx.fillStyle = "#ffffff88";
+		ctx.beginPath();
+		ctx.moveTo(this.x*minimapScale, this.y*minimapScale);
+		// Cone size multiplier
+		let cSM = 3;
+		ctx.lineTo((this.x + Math.sin((this.rotZ - (this.fov/2)) * Math.PI / 180) * cSM) *minimapScale, (this.y - Math.cos((this.rotZ - (this.fov/2)) * Math.PI / 180) * cSM) *minimapScale);
+		ctx.lineTo((this.x + Math.sin((this.rotZ + (this.fov/2)) * Math.PI / 180) * cSM) *minimapScale, (this.y - Math.cos((this.rotZ + (this.fov/2)) * Math.PI / 180) * cSM) *minimapScale);
+		ctx.lineTo(this.x*minimapScale, this.y*minimapScale);
+		ctx.fill();
 	}
 }
 
@@ -366,9 +434,10 @@ let MAP_HEIGHT = 16;
 let MAP_BASELIGHT = 64;
 // The width, length and height of each of the map cubes.
 let MAP_WALLSIZE = 64;
-let MAP_CEILINGCOLOR = "#888888";
+let MAP_CEILINGCOLOR = "#222222";
 let MAP_FLOORCOLOR = "#444444";
 
+// Create block types
 let mapBlock = [];
 for (let i = 0; i < 10; i++)
 {
@@ -378,7 +447,18 @@ mapBlock[0].isVisible = false;
 mapBlock[0].hasCollision = false;
 
 mapBlock[1].color = "#f7a54d";
+mapBlock[1].textureURL = "textures/debugtexture.png";
 let mapBlockWidth = 4;
+
+// Create images for each block's texture
+let mapBlockImage = [];
+
+for (let i = 0; i < mapBlock.length; i++)
+{
+	mapBlockImage[i] = new Image(MAP_WALLSIZE, MAP_WALLSIZE);
+	mapBlockImage[i].src = mapBlock[i].textureURL;
+}
+console.log(mapBlockImage);
 
 
 let player = new Player;
