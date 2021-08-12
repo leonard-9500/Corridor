@@ -237,25 +237,38 @@ class Player
 						{
 							rayHitWall = true;
 
+							// The light falloff value (multiplier)
+							let lFV =  0;
+
 							// This fixes the fisheye effect
 							let rayToCamAngle = rayRotZ-this.rotZ;
-							rayDist *= Math.cos(rayToCamAngle * radians);
+							let rayDistCorrected = rayDist * Math.cos(rayToCamAngle * radians);
+							let lineHeight = Math.round(SCREEN_HEIGHT / rayDistCorrected);
 
-							let lineHeight = SCREEN_HEIGHT / rayDist;
-							// The light falloff value (multiplier)
-							let lFV = 1 / (rayDist * rayDist);
 
-							let c = mapBlock[mapIndex].color;
-							//c = hexToRGBColor(c);
+							let color = 0;
 
-							//let cR = parseInt(c[2]);
-							//console.log(c);
-							ctx.strokeStyle = `rgb(${Math.floor(MAP_BASELIGHT * lFV)}, ${Math.floor(MAP_BASELIGHT * lFV)}, ${Math.floor(MAP_BASELIGHT * lFV)})`;
+							/* Draw ceiling */
+							lFV = 1 / rayDist/2;
+							if (lFV > 1) { lFV = 1 };
+							color = hexToRGBColor(MAP_CEILINGCOLOR);
+							ctx.strokeStyle = ctx.strokeStyle = `rgb(${color[0] * lFV}, ${color[1] * lFV}, ${color[2] * lFV})`;
 
-							// Draw wall line
 							ctx.beginPath();
-							ctx.moveTo(i, SCREEN_HEIGHT/2 - lineHeight/2);
-							ctx.lineTo(i, SCREEN_HEIGHT/2 + lineHeight/2);
+							ctx.moveTo(i+0.5, 0);
+							ctx.lineTo(i+0.5, SCREEN_HEIGHT/2 - lineHeight/2);
+							ctx.stroke();
+
+							/* Draw block */
+							lFV = 1 / rayDist;
+							if (lFV > 1) { lFV = 1 };
+							color = hexToRGBColor(mapBlock[mapIndex].color);
+							ctx.strokeStyle = `rgb(${color[0] * lFV}, ${color[1] * lFV}, ${color[2] * lFV})`;
+
+							// The 0.5 prevents the line from overlapping two columns of pixels and looking brighter than supposed to.
+							ctx.beginPath();
+							ctx.moveTo(i+0.5, SCREEN_HEIGHT/2 - lineHeight/2);
+							ctx.lineTo(i+0.5, SCREEN_HEIGHT/2 + lineHeight/2);
 							ctx.stroke();
 
 							// Experimental
@@ -324,7 +337,11 @@ function getRandomIntInclusive(min, max)
 
 function hexToRGBColor(color)
 {
-	let hexColorValues = [];
+	let r = parseInt(color[1]+color[2], 16);
+	let g = parseInt(color[3]+color[4], 16);
+	let b = parseInt(color[5]+color[6], 16);
+
+	return [r, g, b];
 }
 
 let map = "";
@@ -349,6 +366,8 @@ let MAP_HEIGHT = 16;
 let MAP_BASELIGHT = 64;
 // The width, length and height of each of the map cubes.
 let MAP_WALLSIZE = 64;
+let MAP_CEILINGCOLOR = "#888888";
+let MAP_FLOORCOLOR = "#444444";
 
 let mapBlock = [];
 for (let i = 0; i < 10; i++)
@@ -358,7 +377,7 @@ for (let i = 0; i < 10; i++)
 mapBlock[0].isVisible = false;
 mapBlock[0].hasCollision = false;
 
-mapBlock[1].color = "#ff8800";
+mapBlock[1].color = "#f7a54d";
 let mapBlockWidth = 4;
 
 
