@@ -38,7 +38,8 @@ let wPressed = false,
     dPressed = false,
     jPressed = false,
     kPressed = false,
-    lPressed = false;
+    lPressed = false,
+	ShiftLeftPressed = false;
 
 let wPressedBefore = false,
     aPressedBefore = false,
@@ -46,7 +47,8 @@ let wPressedBefore = false,
     dPressedBefore = false,
     jPressedBefore = false,
     kPressedBefore = false,
-    lPressedBefore = false;
+    lPressedBefore = false,
+	ShiftLeftPressedBefore = false;
 
 let mouseX = 0.0,
 	mouseY = 0.0,
@@ -63,6 +65,8 @@ function keyDownHandler(e)
     if (e.code == "KeyJ") { jPressed = true; }
     if (e.code == "KeyK") { kPressed = true; }
     if (e.code == "KeyL") { lPressed = true; }
+
+	if (e.code == "ShiftLeft") { ShiftLeftPressed = true; }
 }
 
 function keyUpHandler(e)
@@ -75,6 +79,8 @@ function keyUpHandler(e)
     if (e.code == "KeyJ") { jPressed = false; }
     if (e.code == "KeyK") { kPressed = false; }
     if (e.code == "KeyL") { lPressed = false; }
+
+	if (e.code == "ShiftLeft") { ShiftLeftPressed = false; }
 }
 
 function mouseMoveHandler(e)
@@ -108,6 +114,8 @@ class Player
 		this.distToProjPlane = 10;
 		this.velX = 0;
 		this.velY = 0;
+		this.speed = 1.0;
+		this.speedRunning = 1.75;
 		this.collisionAccuracy = 0.1;
 		this.mouseSensitivity = 0.5;
 		this.maxVel = 2;
@@ -131,26 +139,31 @@ class Player
 		// Forward
 		if (wPressed)
 		{
-			this.velX += Math.sin(this.rotZ * radians);
-			this.velY -= Math.cos(this.rotZ * radians);
+			this.velX += Math.sin(this.rotZ * radians) * this.speed;
+			this.velY -= Math.cos(this.rotZ * radians) * this.speed;
 		}
 		// Left
 		if (aPressed)
 		{
-			this.velX += Math.sin((this.rotZ-90) * radians);
-			this.velY -= Math.cos((this.rotZ-90) * radians);
+			this.velX += Math.sin((this.rotZ-90) * radians) * this.speed;
+			this.velY -= Math.cos((this.rotZ-90) * radians) * this.speed;
 		}
 		// Backwards
 		if (sPressed)
 		{
-			this.velX += Math.sin((this.rotZ-180) * radians);
-			this.velY -= Math.cos((this.rotZ-180) * radians);
+			this.velX += Math.sin((this.rotZ-180) * radians) * this.speed;
+			this.velY -= Math.cos((this.rotZ-180) * radians) * this.speed;
 		}
 		// Right
 		if (dPressed)
 		{
-			this.velX += Math.sin((this.rotZ+90) * radians);
-			this.velY -= Math.cos((this.rotZ+90) * radians);
+			this.velX += Math.sin((this.rotZ+90) * radians) * this.speed;
+			this.velY -= Math.cos((this.rotZ+90) * radians) * this.speed;
+		}
+		if (ShiftLeftPressed)
+		{
+			this.velX *= this.speedRunning;
+			this.velY *= this.speedRunning;
 		}
 
 		this.rotZ += (mouseX-mouseLastX) * this.mouseSensitivity;
@@ -165,7 +178,7 @@ class Player
 		if (this.y < 0) { this.y = 0; };
 		if (this.y > MAP_HEIGHT) { this.y = MAP_HEIGHT; };
 
-		let mapIndex = map[Math.round(this.x) + Math.round(this.y) * MAP_WIDTH];
+		let mapIndex = map[Math.floor(this.x) + Math.floor(this.y) * MAP_WIDTH];
 		if (mapBlock[mapIndex].hasCollision)
 		{
 			this.x -= this.velX * elapsedTime/1000;
@@ -235,7 +248,7 @@ class Player
 					}
 					else
 					{
-						let mapIndex = parseInt(map[Math.round(rayEndX) + Math.round(rayEndY) * MAP_WIDTH], 10);
+						let mapIndex = parseInt(map[Math.floor(rayEndX) + Math.floor(rayEndY) * MAP_WIDTH], 10);
 						// Ray has hit wall block
 						if (mapBlock[mapIndex].isVisible)
 						{
@@ -285,29 +298,53 @@ class Player
 							// -w-
 							let rayEndXError = rayEndX % 1;
 							let rayEndYError = rayEndY % 1;
+							// If ray is intersecting vertical slices of block
 							if (rayEndXError < rayEndYError)
 							{
 								// This flips the texture so that it's displayed correctly
+								// Left side of block
 								if (rayEndXError < 0.5)
-								{
-									ctx.drawImage(mapBlockImage[mapIndex], MAP_WALLSIZE * rayEndXError, 0, 1, MAP_WALLSIZE, i, this.viewHeightCenter - lineHeight/2, 1, lineHeight);
-								}
-								else
-								{
-									ctx.drawImage(mapBlockImage[mapIndex], MAP_WALLSIZE - MAP_WALLSIZE * rayEndXError, 0, 1, MAP_WALLSIZE, i, this.viewHeightCenter - lineHeight/2, 1, lineHeight);
-								}
-							}
-							else
-							{
-								if (rayEndYError < 0.5)
 								{
 									ctx.drawImage(mapBlockImage[mapIndex], MAP_WALLSIZE * rayEndYError, 0, 1, MAP_WALLSIZE, i, this.viewHeightCenter - lineHeight/2, 1, lineHeight);
 								}
+								// Right side of block
+								else if (rayEndXError > 0.5)
+								{
+									//ctx.drawImage(mapBlockImage[mapIndex], MAP_WALLSIZE - MAP_WALLSIZE * rayEndYError, 0, 1, MAP_WALLSIZE, i, this.viewHeightCenter - lineHeight/2, 1, lineHeight);
+								}
+							}
+							// If ray is intersecting horizontal slices of block
+							else if (rayEndYError < rayEndXError)
+							{
+								// "Top" side of block
+								if (rayEndYError > 0.5)
+								{
+									//ctx.drawImage(mapBlockImage[mapIndex], MAP_WALLSIZE * rayEndXError, 0, 1, MAP_WALLSIZE, i, this.viewHeightCenter - lineHeight/2, 1, lineHeight);
+								}
+								// "Bottom" side of block
+								else
+								{
+									//ctx.drawImage(mapBlockImage[mapIndex], MAP_WALLSIZE - MAP_WALLSIZE * rayEndXError, 0, 1, MAP_WALLSIZE, i, this.viewHeightCenter - lineHeight/2, 1, lineHeight);
+								}
+							}
+							/*
+							if (rayEndXError < 0.5)
+							{
+								// Left side of wall
+								if (rayEndXError < rayEndYError)
+								{
+									ctx.drawImage(mapBlockImage[mapIndex], MAP_WALLSIZE * rayEndYError, 0, 1, MAP_WALLSIZE, i, this.viewHeightCenter - lineHeight/2, 1, lineHeight);
+								}
+								// Top side of wall
 								else
 								{
 									ctx.drawImage(mapBlockImage[mapIndex], MAP_WALLSIZE - MAP_WALLSIZE * rayEndYError, 0, 1, MAP_WALLSIZE, i, this.viewHeightCenter - lineHeight/2, 1, lineHeight);
 								}
 							}
+							else
+							{
+							}
+							*/
 
 							/* Draw floor */
 							lFV = 1;//1 / rayDist/2;
