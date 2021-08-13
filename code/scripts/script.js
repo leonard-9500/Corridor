@@ -299,54 +299,6 @@ class Player
 							let rayEndXError = rayEndX % 1;
 							let rayEndYError = rayEndY % 1;
 							// If ray is intersecting vertical slices of block
-							/*
-							if (rayEndXError < rayEndYError)
-							{
-								// This flips the texture so that it's displayed correctly
-								// Left side of block
-								if (rayEndXError < 0.5)
-								{
-									ctx.drawImage(mapBlockImage[mapIndex], MAP_WALLSIZE * rayEndYError, 0, 1, MAP_WALLSIZE, i, this.viewHeightCenter - lineHeight/2, 1, lineHeight);
-								}
-								// Right side of block
-								else if (rayEndXError > 0.5)
-								{
-									//ctx.drawImage(mapBlockImage[mapIndex], MAP_WALLSIZE - MAP_WALLSIZE * rayEndYError, 0, 1, MAP_WALLSIZE, i, this.viewHeightCenter - lineHeight/2, 1, lineHeight);
-								}
-							}
-							// If ray is intersecting horizontal slices of block
-							else if (rayEndYError < rayEndXError)
-							{
-								// "Top" side of block
-								if (rayEndYError > 0.5)
-								{
-									//ctx.drawImage(mapBlockImage[mapIndex], MAP_WALLSIZE * rayEndXError, 0, 1, MAP_WALLSIZE, i, this.viewHeightCenter - lineHeight/2, 1, lineHeight);
-								}
-								// "Bottom" side of block
-								else
-								{
-									//ctx.drawImage(mapBlockImage[mapIndex], MAP_WALLSIZE - MAP_WALLSIZE * rayEndXError, 0, 1, MAP_WALLSIZE, i, this.viewHeightCenter - lineHeight/2, 1, lineHeight);
-								}
-							}
-							*/
-							/*
-							if (rayEndXError < 0.5)
-							{
-								// Left side of wall
-								if (rayEndXError < rayEndYError)
-								{
-									ctx.drawImage(mapBlockImage[mapIndex], MAP_WALLSIZE * rayEndYError, 0, 1, MAP_WALLSIZE, i, this.viewHeightCenter - lineHeight/2, 1, lineHeight);
-								}
-								// Top side of wall
-								else
-								{
-									ctx.drawImage(mapBlockImage[mapIndex], MAP_WALLSIZE - MAP_WALLSIZE * rayEndYError, 0, 1, MAP_WALLSIZE, i, this.viewHeightCenter - lineHeight/2, 1, lineHeight);
-								}
-							}
-							else
-							{
-							}
-							*/
 
 							// Check left half of block
 							if (rayEndXError < 0.5)
