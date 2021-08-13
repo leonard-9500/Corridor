@@ -98,6 +98,8 @@ class Block
 		this.isVisible = true;
 		this.hasCollision = true;
 		this.textureURL = "textures/notexture.png";
+		this.image = new Image();
+		this.image.src = this.textureURL;
 	}
 }
 
@@ -309,12 +311,12 @@ class Player
 									// Left side of quarter block
 									if (rayEndXError < rayEndYError)
 									{
-										ctx.drawImage(mapBlockImage[mapIndex], MAP_WALLSIZE * rayEndYError, 0, 1, MAP_WALLSIZE, i, this.viewHeightCenter - lineHeight/2, 1, lineHeight);
+										ctx.drawImage(mapBlock[mapIndex].image, MAP_WALLSIZE * rayEndYError, 0, 1, MAP_WALLSIZE, i, this.viewHeightCenter - lineHeight/2, 1, lineHeight);
 									}
 									// Top side of quarter block
 									else
 									{
-										ctx.drawImage(mapBlockImage[mapIndex], MAP_WALLSIZE-MAP_WALLSIZE * rayEndXError, 0, 1, MAP_WALLSIZE, i, this.viewHeightCenter - lineHeight/2, 1, lineHeight);
+										ctx.drawImage(mapBlock[mapIndex].image, MAP_WALLSIZE-MAP_WALLSIZE * rayEndXError, 0, 1, MAP_WALLSIZE, i, this.viewHeightCenter - lineHeight/2, 1, lineHeight);
 									}
 								}
 								// Check bottom left quarter of block
@@ -323,12 +325,12 @@ class Player
 									// Left side of quarter block
 									if (rayEndXError < 1-rayEndYError)
 									{
-										ctx.drawImage(mapBlockImage[mapIndex], MAP_WALLSIZE * rayEndYError, 0, 1, MAP_WALLSIZE, i, this.viewHeightCenter - lineHeight/2, 1, lineHeight);
+										ctx.drawImage(mapBlock[mapIndex].image, MAP_WALLSIZE * rayEndYError, 0, 1, MAP_WALLSIZE, i, this.viewHeightCenter - lineHeight/2, 1, lineHeight);
 									}
 									// Bottom side of quarter block
 									else
 									{
-										ctx.drawImage(mapBlockImage[mapIndex], MAP_WALLSIZE * rayEndXError, 0, 1, MAP_WALLSIZE, i, this.viewHeightCenter - lineHeight/2, 1, lineHeight);
+										ctx.drawImage(mapBlock[mapIndex].image, MAP_WALLSIZE * rayEndXError, 0, 1, MAP_WALLSIZE, i, this.viewHeightCenter - lineHeight/2, 1, lineHeight);
 									}
 								}
 							}
@@ -341,12 +343,12 @@ class Player
 									// Right side of quarter block
 									if (1-rayEndXError < rayEndYError)
 									{
-										ctx.drawImage(mapBlockImage[mapIndex], MAP_WALLSIZE-MAP_WALLSIZE * rayEndYError, 0, 1, MAP_WALLSIZE, i, this.viewHeightCenter - lineHeight/2, 1, lineHeight);
+										ctx.drawImage(mapBlock[mapIndex].image, MAP_WALLSIZE-MAP_WALLSIZE * rayEndYError, 0, 1, MAP_WALLSIZE, i, this.viewHeightCenter - lineHeight/2, 1, lineHeight);
 									}
 									// Top side of quarter block
 									else
 									{
-										ctx.drawImage(mapBlockImage[mapIndex], MAP_WALLSIZE-MAP_WALLSIZE * rayEndXError, 0, 1, MAP_WALLSIZE, i, this.viewHeightCenter - lineHeight/2, 1, lineHeight);
+										ctx.drawImage(mapBlock[mapIndex].image, MAP_WALLSIZE-MAP_WALLSIZE * rayEndXError, 0, 1, MAP_WALLSIZE, i, this.viewHeightCenter - lineHeight/2, 1, lineHeight);
 									}
 								}
 								// Check bottom right quarter of block
@@ -355,12 +357,12 @@ class Player
 									// Right side of quarter block
 									if (1-rayEndXError < 1-rayEndYError)
 									{
-										ctx.drawImage(mapBlockImage[mapIndex], MAP_WALLSIZE-MAP_WALLSIZE * rayEndYError, 0, 1, MAP_WALLSIZE, i, this.viewHeightCenter - lineHeight/2, 1, lineHeight);
+										ctx.drawImage(mapBlock[mapIndex].image, MAP_WALLSIZE-MAP_WALLSIZE * rayEndYError, 0, 1, MAP_WALLSIZE, i, this.viewHeightCenter - lineHeight/2, 1, lineHeight);
 									}
 									// Bottom side of quarter block
 									else
 									{
-										ctx.drawImage(mapBlockImage[mapIndex], MAP_WALLSIZE * rayEndXError, 0, 1, MAP_WALLSIZE, i, this.viewHeightCenter - lineHeight/2, 1, lineHeight);
+										ctx.drawImage(mapBlock[mapIndex].image, MAP_WALLSIZE * rayEndXError, 0, 1, MAP_WALLSIZE, i, this.viewHeightCenter - lineHeight/2, 1, lineHeight);
 									}
 								}
 							}
@@ -425,7 +427,7 @@ class Player
 					{
 						ctx.fillStyle = mapBlock[mapIndex].color;
 						ctx.fillRect(x*minimapScale, y*minimapScale, rW, rH);
-						ctx.drawImage(mapBlockImage[mapIndex], x*minimapScale, y*minimapScale, rW, rH);
+						ctx.drawImage(mapBlock[mapIndex].image, x*minimapScale, y*minimapScale, rW, rH);
 					}
 				}
 			}
@@ -504,17 +506,8 @@ mapBlock[0].hasCollision = false;
 
 mapBlock[1].color = "#f7a54d";
 mapBlock[1].textureURL = "textures/debugtexture.png";
+mapBlock[1].image.src = mapBlock[1].textureURL;
 let mapBlockWidth = 4;
-
-// Create images for each block's texture
-let mapBlockImage = [];
-
-for (let i = 0; i < mapBlock.length; i++)
-{
-	mapBlockImage[i] = new Image(MAP_WALLSIZE, MAP_WALLSIZE);
-	mapBlockImage[i].src = mapBlock[i].textureURL;
-}
-console.log(mapBlockImage);
 
 
 let player = new Player;
