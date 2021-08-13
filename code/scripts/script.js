@@ -94,6 +94,7 @@ class Block
 {
 	constructor()
 	{
+		this.name = "Block";
 		this.color = "#ffffff";
 		this.isVisible = true;
 		this.hasCollision = true;
@@ -285,10 +286,12 @@ class Player
 							ctx.strokeStyle = `rgb(${color[0] * lFV}, ${color[1] * lFV}, ${color[2] * lFV})`;
 
 							// The 0.5 prevents the line from overlapping two columns of pixels and looking brighter than supposed to.
+							/*
 							ctx.beginPath();
 							ctx.moveTo(i+0.5, this.viewHeightCenter - lineHeight/2);
 							ctx.lineTo(i+0.5, this.viewHeightCenter + lineHeight/2);
 							ctx.stroke();
+							*/
 
 							// This draws the same line, but with texture mapping.
 							// If the x coordinate is closer to the underlying grid than the y coordinate, then the ray is intersecting a wall slice that goes along the y-axis.
@@ -303,13 +306,14 @@ class Player
 							// If ray is intersecting vertical slices of block
 
 							// Check left half of block
-							if (rayEndXError < 0.5)
+							if (rayEndXError <= 0.5)
 							{
 								// Check top left quarter of block
-								if (rayEndYError < 0.5)
+								if (rayEndYError <= 0.5)
 								{
-									// Left side of quarter block
-									if (rayEndXError < rayEndYError)
+									// Left side of quarter block because x is nearer to the next gridline than y is. This is the logic for all the checks
+									// for the texture mapping.
+									if (rayEndXError <= rayEndYError)
 									{
 										ctx.drawImage(mapBlock[mapIndex].image, MAP_WALLSIZE * rayEndYError, 0, 1, MAP_WALLSIZE, i, this.viewHeightCenter - lineHeight/2, 1, lineHeight);
 									}
@@ -323,7 +327,7 @@ class Player
 								if (rayEndYError > 0.5)
 								{
 									// Left side of quarter block
-									if (rayEndXError < 1-rayEndYError)
+									if (rayEndXError <= 1-rayEndYError)
 									{
 										ctx.drawImage(mapBlock[mapIndex].image, MAP_WALLSIZE * rayEndYError, 0, 1, MAP_WALLSIZE, i, this.viewHeightCenter - lineHeight/2, 1, lineHeight);
 									}
@@ -338,10 +342,10 @@ class Player
 							if (rayEndXError > 0.5)
 							{
 								// Check top right quarter of block
-								if (rayEndYError < 0.5)
+								if (rayEndYError <= 0.5)
 								{
 									// Right side of quarter block
-									if (1-rayEndXError < rayEndYError)
+									if (1-rayEndXError <= rayEndYError)
 									{
 										ctx.drawImage(mapBlock[mapIndex].image, MAP_WALLSIZE-MAP_WALLSIZE * rayEndYError, 0, 1, MAP_WALLSIZE, i, this.viewHeightCenter - lineHeight/2, 1, lineHeight);
 									}
@@ -355,7 +359,7 @@ class Player
 								if (rayEndYError > 0.5)
 								{
 									// Right side of quarter block
-									if (1-rayEndXError < 1-rayEndYError)
+									if (1-rayEndXError <= 1-rayEndYError)
 									{
 										ctx.drawImage(mapBlock[mapIndex].image, MAP_WALLSIZE-MAP_WALLSIZE * rayEndYError, 0, 1, MAP_WALLSIZE, i, this.viewHeightCenter - lineHeight/2, 1, lineHeight);
 									}
@@ -505,8 +509,14 @@ mapBlock[0].isVisible = false;
 mapBlock[0].hasCollision = false;
 
 mapBlock[1].color = "#f7a54d";
-mapBlock[1].textureURL = "textures/debugtexture.png";
-mapBlock[1].image.src = mapBlock[1].textureURL;
+mapBlock[1].name = "Stone Wall";
+mapBlock[2].name = "Wood";
+// Assign corresponding textures to map blocks
+for (let i = 0; i < mapBlock.length; i++)
+{
+	mapBlock[i].textureURL = "textures/" + i + ".png";
+	mapBlock[i].image.src = mapBlock[i].textureURL;
+}
 let mapBlockWidth = 4;
 
 
