@@ -18,6 +18,7 @@ const ctx = canvas.getContext("2d");
 
 canvas.width = SCREEN_WIDTH;
 canvas.height = SCREEN_HEIGHT;
+ctx.imageSmoothingEnabled = false;
 
 ctx.save();
 // Flip the canvas' y-axis.
@@ -124,6 +125,7 @@ class Player
 		this.maxVel = 2;
 		this.rotZ = 0;
 		this.fov = 90;
+		this.velVecLength = 0;
 	}
 
 	update()
@@ -131,6 +133,20 @@ class Player
 		this.velX = 0;
 		this.velY = 0;
 		this.handleInput();
+		/*
+		if (this.velX + this.velY != 0)
+		{
+			this.velVecLength = Math.sqrt((this.velX*this.velX) + (this.velY*this.velY));
+		}
+
+		// Normalize velocity
+		//this.velX = this.velX/this.velVecLength;
+		this.velY = this.velY / this.velVecLength;
+		// Cap speed
+		this.velX *= this.speed;
+		this.velY *= this.speed;
+		*/
+
 		this.x += this.velX * elapsedTime / 1000;
 		this.y += this.velY * elapsedTime / 1000;
 		this.collisionDetection();
@@ -304,7 +320,6 @@ class Player
 							let rayEndXError = rayEndX % 1;
 							let rayEndYError = rayEndY % 1;
 							// If ray is intersecting vertical slices of block
-
 							// Check left half of block
 							if (rayEndXError <= 0.5)
 							{
@@ -370,6 +385,21 @@ class Player
 									}
 								}
 							}
+							/* Shade the textured blocks */
+							lFV = 1 / rayDist;
+							if (lFV > 1) { lFV = 1 };
+							color = hexToRGBColor("#ffffff");
+							ctx.strokeStyle = `rgba(${color[0] * lFV}, ${color[1] * lFV}, ${color[2] * lFV}, ${0.5})`;
+							// This allows drawing over the textures
+							ctx.globalCompositeOperation = "multiply";
+
+							ctx.beginPath();
+							ctx.moveTo(i+0.5, this.viewHeightCenter - lineHeight/2);
+							ctx.lineTo(i+0.5, this.viewHeightCenter + lineHeight/2);
+							ctx.stroke();
+
+							// This sets it back to the standard gCO type.
+							ctx.globalCompositeOperation = "source-over";
 
 							/* Draw floor */
 							lFV = 1;//1 / rayDist/2;
@@ -496,8 +526,8 @@ let MAP_HEIGHT = 16;
 let MAP_BASELIGHT = 64;
 // The width, length and height of each of the map cubes.
 let MAP_WALLSIZE = 64;
-let MAP_CEILINGCOLOR = "#222222";
-let MAP_FLOORCOLOR = "#444444";
+let MAP_CEILINGCOLOR = "#111111";
+let MAP_FLOORCOLOR = "#222222";
 
 // Create block types
 let mapBlock = [];
