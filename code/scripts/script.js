@@ -299,6 +299,7 @@ class Player
 							let rayEndXError = rayEndX % 1;
 							let rayEndYError = rayEndY % 1;
 							// If ray is intersecting vertical slices of block
+							/*
 							if (rayEndXError < rayEndYError)
 							{
 								// This flips the texture so that it's displayed correctly
@@ -327,6 +328,7 @@ class Player
 									//ctx.drawImage(mapBlockImage[mapIndex], MAP_WALLSIZE - MAP_WALLSIZE * rayEndXError, 0, 1, MAP_WALLSIZE, i, this.viewHeightCenter - lineHeight/2, 1, lineHeight);
 								}
 							}
+							*/
 							/*
 							if (rayEndXError < 0.5)
 							{
@@ -345,6 +347,71 @@ class Player
 							{
 							}
 							*/
+
+							// Check left half of block
+							if (rayEndXError < 0.5)
+							{
+								// Check top left quarter of block
+								if (rayEndYError < 0.5)
+								{
+									// Left side of quarter block
+									if (rayEndXError < rayEndYError)
+									{
+										ctx.drawImage(mapBlockImage[mapIndex], MAP_WALLSIZE * rayEndYError, 0, 1, MAP_WALLSIZE, i, this.viewHeightCenter - lineHeight/2, 1, lineHeight);
+									}
+									// Top side of quarter block
+									else
+									{
+										ctx.drawImage(mapBlockImage[mapIndex], MAP_WALLSIZE-MAP_WALLSIZE * rayEndXError, 0, 1, MAP_WALLSIZE, i, this.viewHeightCenter - lineHeight/2, 1, lineHeight);
+									}
+								}
+								// Check bottom left quarter of block
+								if (rayEndYError > 0.5)
+								{
+									// Left side of quarter block
+									if (rayEndXError < 1-rayEndYError)
+									{
+										ctx.drawImage(mapBlockImage[mapIndex], MAP_WALLSIZE * rayEndYError, 0, 1, MAP_WALLSIZE, i, this.viewHeightCenter - lineHeight/2, 1, lineHeight);
+									}
+									// Bottom side of quarter block
+									else
+									{
+										ctx.drawImage(mapBlockImage[mapIndex], MAP_WALLSIZE * rayEndXError, 0, 1, MAP_WALLSIZE, i, this.viewHeightCenter - lineHeight/2, 1, lineHeight);
+									}
+								}
+							}
+							// Check right half of block
+							if (rayEndXError > 0.5)
+							{
+								// Check top right quarter of block
+								if (rayEndYError < 0.5)
+								{
+									// Right side of quarter block
+									if (1-rayEndXError < rayEndYError)
+									{
+										ctx.drawImage(mapBlockImage[mapIndex], MAP_WALLSIZE-MAP_WALLSIZE * rayEndYError, 0, 1, MAP_WALLSIZE, i, this.viewHeightCenter - lineHeight/2, 1, lineHeight);
+									}
+									// Top side of quarter block
+									else
+									{
+										ctx.drawImage(mapBlockImage[mapIndex], MAP_WALLSIZE-MAP_WALLSIZE * rayEndXError, 0, 1, MAP_WALLSIZE, i, this.viewHeightCenter - lineHeight/2, 1, lineHeight);
+									}
+								}
+								// Check bottom right quarter of block
+								if (rayEndYError > 0.5)
+								{
+									// Right side of quarter block
+									if (1-rayEndXError < 1-rayEndYError)
+									{
+										ctx.drawImage(mapBlockImage[mapIndex], MAP_WALLSIZE-MAP_WALLSIZE * rayEndYError, 0, 1, MAP_WALLSIZE, i, this.viewHeightCenter - lineHeight/2, 1, lineHeight);
+									}
+									// Bottom side of quarter block
+									else
+									{
+										ctx.drawImage(mapBlockImage[mapIndex], MAP_WALLSIZE * rayEndXError, 0, 1, MAP_WALLSIZE, i, this.viewHeightCenter - lineHeight/2, 1, lineHeight);
+									}
+								}
+							}
 
 							/* Draw floor */
 							lFV = 1;//1 / rayDist/2;
